@@ -1,0 +1,35 @@
+{
+  "name": "backend_waste_mangement",
+  "version": "1.0.0",
+  "description": "This is portal for proper Waste Management",
+  "keywords": [
+    "nodejs",
+    "js"
+  ],
+  "homepage": "https://github.com/uday246r/Backend_Waste_Management_System#readme",
+  "bugs": {
+    "url": "https://github.com/uday246r/Backend_Waste_Management_System/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/uday246r/Backend_Waste_Management_System.git"
+  },
+  "license": "ISC",
+  "author": "Uday",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "start": "node src/app.js",
+    "dev": "nodemon src/app.js"
+  },
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "cookie-parser": "^1.4.7",
+    "cookieparser": "^0.1.0",
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.13.2",
+    "validator": "^13.15.0"
+  }
+}

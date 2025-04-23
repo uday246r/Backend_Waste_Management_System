@@ -5,11 +5,11 @@ const { userAuth } = require("../middlewares/auth");
 const ConnectionRequest = require("../models/connectionRequest");
 const User = require("../models/user");
 
-requestRouter.post("/sendConnectionRequest",userAuth,  async(req,res) => {
-    const user = req.user;
-    console.log("Sending connection request");
-    res.send(user.firstName + "sent the connect request!");
-});
+// requestRouter.post("/sendConnectionRequest",userAuth,  async(req,res) => {
+//     const user = req.user;
+//     console.log("Sending connection request");
+//     res.send(user.firstName + "sent the connect request!");
+// });
 
 requestRouter.post(
     "/request/send/:status/:toUserId",
@@ -34,16 +34,25 @@ requestRouter.post(
 
              // If there is an existing ConnectionRequest
              const existingConnectionRequest = await ConnectionRequest.findOne({
-                $or : [
-                    { fromUserId, toUserId },
-                    { fromUserId: toUserId, toUserId: fromUserId },
+                $or: [
+                  { fromUserId, toUserId },
+                  { fromUserId: toUserId, toUserId: fromUserId },
                 ],
-             });
-             if(existingConnectionRequest){
-                return res
-                .status(400)
-                .send({message: "Connection Request Already Exist!"})
-             }
+              });
+              
+              if (existingConnectionRequest) {
+                if (existingConnectionRequest.status === "accepted") {
+                  return res.status(200).json({
+                    message: "Already friends",
+                    status: "accepted",
+                  });
+                }
+              
+                return res.status(409).json({
+                  message: "Request already sent",
+                  status: existingConnectionRequest.status,
+                });
+              }
 
              const connectionRequest = new ConnectionRequest({
                 fromUserId,

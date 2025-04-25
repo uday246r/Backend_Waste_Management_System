@@ -1,12 +1,13 @@
 const express = require("express");
 const pickupRequestRouter = express.Router();
 
-const { userAuth, companyAuth } = require("../middlewares/auth");
-const PickupRequest = require("../models/pickupRequest");
+const { userAuth } = require("../middlewares/auth");
+const { companyAuth } = require("../middlewares/companyAuth")
+const PickupRequest = require("../models/schedulePickup");
 const Company = require("../models/company");
 
 // ✅ Send pickup request from user to company
-pickupRequestRouter.post("/send/:status/:toCompanyId", userAuth, async (req, res) => {
+pickupRequestRouter.post("/:status/:toCompanyId", userAuth, async (req, res) => {
   try {
       const fromUserId = req.user._id;
       const toCompanyId = req.params.toCompanyId;

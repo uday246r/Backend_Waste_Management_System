@@ -23,6 +23,8 @@ const requestRouter = require("./routes/request");
 const userRouter = require("./routes/user");
 const companyRouter = require("./routes/company");
 const videoRouter = require("./routes/videoRoutes"); // ✅ NEW
+const pickupRequestRouter = require("./routes/scheduleRequest")
+
 
 // Use Routes
 app.use("/auth/user", authRouter);
@@ -33,6 +35,8 @@ app.use("/request", requestRouter);
 app.use("/user", userRouter);
 app.use("/company",companyRouter);
 app.use("/videos", videoRouter); // ✅ NEW
+
+app.use("/pickr", pickupRequestRouter);
 
 // Connect to DB and start server
 connectDB()

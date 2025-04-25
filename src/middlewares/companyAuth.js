@@ -9,7 +9,7 @@ const companyAuth = async (req, res, next) => {
         return res.status(401).send("Please Login!");
     }
 
-    const decodedObj = await jwt.verify(token, "DEV@Tinder$791");
+    const decodedObj = await jwt.verify(token, "DEV@Tinder$790");
 
     const { _id } = decodedObj;
 

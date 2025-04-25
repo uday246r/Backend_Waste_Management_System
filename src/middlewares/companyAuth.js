@@ -15,7 +15,7 @@ const companyAuth = async (req, res, next) => {
 
     const company = await Company.findById(_id);
     if(!company) {
-        throw new Error("User not found");
+        throw new Error("Company not found");
     }
     req.company = company;
     next();

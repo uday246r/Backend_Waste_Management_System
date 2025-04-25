@@ -1,23 +1,23 @@
 
 const mongoose = require('mongoose');
 
-const connectionRequestSchema = new mongoose.Schema({
+const schedulePickupRequestSchema = new mongoose.Schema({
 
     fromUserId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "User", //reference to user collection
+        ref: "User", 
         required: true
     },
-    toUserId: {
+    toCompanyId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "User", //reference to user collection
+        ref: "Company", 
         required: true
     },
     status: {
         type: String,
         required: true,
         enum: {
-            values: ["ignored", "schedule", "accepted", "rejected"],
+            values: ["ignored", "interested", "accepted", "rejected"],
             message: `{VALUE} is incorrect status type`
         }
     }
@@ -26,20 +26,20 @@ const connectionRequestSchema = new mongoose.Schema({
 );
 
 // To make queries fast we use concept of index and when write two index simultaneously called compound index as below - internal functioning done by mongoDB - beneficitial if we have billions of record in our database
-connectionRequestSchema.index({ fromUserId : 1 , toUserId: 1});
+schedulePickupRequestSchema.index({ fromUserId : 1 , toCompanyId: 1});
 
- connectionRequestSchema.pre("save", function (next) {  // don't use arrow function here, arrow function get break when we use "this" with them
-    const connectionRequest = this;
+schedulePickupRequestSchema.pre("save", function (next) {  // don't use arrow function here, arrow function get break when we use "this" with them
+    const request = this;
     // Check if the fromUserId is same as to toUserId
-    if(connectionRequest.fromUserId.equals(connectionRequest.toUserId)){
+    if(request.fromUserId.equals(request.toUserId)){
         throw new Error("Cannot send connection request to yourself!");
     }
     next();
 });
 
-const ConnectionRequestModel = new mongoose.model(
-    "ConnectionRequest",
-    connectionRequestSchema
+const PickupRequestModel = new mongoose.model(
+    "PickupRequest",
+    schedulePickupRequestSchema
 );
 
-module.exports = ConnectionRequestModel;
+module.exports = PickupRequestModel;

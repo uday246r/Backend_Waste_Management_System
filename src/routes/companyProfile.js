@@ -21,13 +21,13 @@ companyProfileRouter.get("/view", companyAuth, async(req,res) => {
 
         const loggedInCompany = req.company;
         
-        Object.keys(req.body).forEach((key) => (loggedInUser[key] = req.body[key]));
+        Object.keys(req.body).forEach((key) => (loggedInCompany[key] = req.body[key]));
         
-        await loggedInUser.save();
+        await loggedInCompany.save();
 
         res.json({
-            message: `${loggedInUser.firstName}, your profile updated successfuly`,
-            data: loggedInUser,
+            message: `${loggedInCompany.companyName}, your profile updated successfuly`,
+            data: loggedInCompany,
        });
 
        } catch (err) {
@@ -35,5 +35,5 @@ companyProfileRouter.get("/view", companyAuth, async(req,res) => {
        }
     });
 
-    module.exports = profileRouter;
+    module.exports = companyProfileRouter;
     

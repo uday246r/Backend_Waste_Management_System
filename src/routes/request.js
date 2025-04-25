@@ -12,7 +12,7 @@ const User = require("../models/user");
 // });
 
 requestRouter.post(
-    "/request/send/:status/:toUserId",
+    "/send/:status/:toUserId",
     userAuth,  
     async(req,res) => {
         try{
@@ -74,7 +74,7 @@ requestRouter.post(
 );
 
 requestRouter.post(
-    "/request/review/:status/:requestId",
+    "/review/:status/:requestId",
     userAuth,
     async(req,res) => {
         try{

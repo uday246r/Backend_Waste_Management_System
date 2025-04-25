@@ -1,25 +1,25 @@
 const express = require('express');
-const profileRouter = express.Router();
-const { userAuth } = require("../middlewares/auth");
-const { validateEditProfileData} = require("../utils/validation");
+const companyProfileRouter = express.Router();
+const { companyAuth } = require("../middlewares/companyAuth");
+const { validateEditProfileDataCompany } = require("../utils/validateCompany");
 
-profileRouter.get("/view", userAuth, async(req,res) => {
+companyProfileRouter.get("/view", companyAuth, async(req,res) => {
     try{
-        const user = req.user;
+        const company = req.company;
        
-        res.send(user);
+        res.send(company);
     } catch(err){
         res.status(400).send("ERROR : " + err.message);
     }
     });
 
-    profileRouter.patch("/edit", userAuth, async (req,res) => {
+    companyProfileRouter.patch("/edit", companyAuth, async (req,res) => {
        try{
-        if(!validateEditProfileData(req)){
+        if(!validateEditProfileDataCompany(req)){
             throw new Error("Invalid Edit Request");
         }
 
-        const loggedInUser = req.user;
+        const loggedInCompany = req.company;
         
         Object.keys(req.body).forEach((key) => (loggedInUser[key] = req.body[key]));
         

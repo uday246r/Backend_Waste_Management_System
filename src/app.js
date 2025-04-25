@@ -21,6 +21,7 @@ const profileRouter = require("./routes/profile");
 const companyProfileRouter = require("./routes/companyProfile");
 const requestRouter = require("./routes/request");
 const userRouter = require("./routes/user");
+const companyRouter = require("./routes/company");
 const videoRouter = require("./routes/videoRoutes"); // ✅ NEW
 
 // Use Routes
@@ -30,6 +31,7 @@ app.use("/profile", profileRouter);
 app.use("/companyProfile", companyProfileRouter);
 app.use("/request", requestRouter);
 app.use("/user", userRouter);
+app.use("/company",companyRouter);
 app.use("/videos", videoRouter); // ✅ NEW
 
 // Connect to DB and start server

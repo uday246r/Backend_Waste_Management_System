@@ -5,10 +5,6 @@ const Company = require("../models/company");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
- 
-
-
-
  authCRouter.post("/signup", async (req, res) => {
      try{
         // validation of data

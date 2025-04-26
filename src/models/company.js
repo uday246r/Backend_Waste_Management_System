@@ -61,7 +61,7 @@ const companySchema = new mongoose.Schema({
 companySchema.methods.getJWT = async function () {
     const company = this;
 
-    const token = await  jwt.sign({ _id: company._id}, "DEV@Tinder$791",{
+    const token = await  jwt.sign({ _id: company._id}, "DEV@Tinder$790",{
         expiresIn: "7d",
     });
     return token;

@@ -1,23 +1,44 @@
 const validatorC = require("validator");
 
 const validateSignUpDataCompany = (req) => {
-    const { companyName, emailId, password, wasteType, photoUrl, about, price } = req.body;
-    if(!companyName) {
-        throw new Error("Name is not valid!");
+    const { companyName, emailId, password, wasteType, location, photoUrl, about, price } = req.body;
+    
+    if (!companyName) {
+        throw new Error("Company name is required.");
     }
-    else if(!emailId || !validatorC.isEmail(emailId)){
-        throw new Error("Email is not valid");
+    if (!emailId || !validatorC.isEmail(emailId)) {
+        throw new Error("A valid email ID is required.");
     }
-    else if(!validatorC.isStrongPassword(password)){
-        throw new Error("Please enter a strong Password!");
+    if (!validatorC.isStrongPassword(password)) {
+        throw new Error("Please enter a strong password.");
     }
+    if (!wasteType) {
+        throw new Error("Waste type is required.");
+    }
+    if (!location) {
+        throw new Error("Location is required.");
+    }
+    if (!photoUrl) {
+        throw new Error("Photo URL is required.");
+    }
+    if (!about) {
+        throw new Error("About section is required.");
+    }
+    if (price === undefined || price === null) {
+        throw new Error("Price is required.");
+    }
+
+    return true;
 };
 
 const validateEditProfileDataCompany = (req) => {
+    console.log("Request Body:", req.body); 
     const allowedEditFields = [
          "companyName",
          "photoUrl", 
          "wasteType",
+         "emailId",
+         "location",
          "about", 
          "price",
 
@@ -27,7 +48,11 @@ const validateEditProfileDataCompany = (req) => {
         allowedEditFields.includes(field)
 );
 
-return isEditAllowed;
+if (!isEditAllowed) {
+    throw new Error("Editing non-allowed fields is not permitted.");
+}
+
+return true;
 
 };
 

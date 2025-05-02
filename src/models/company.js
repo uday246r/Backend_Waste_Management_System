@@ -47,9 +47,13 @@ const companySchema = new mongoose.Schema({
             }
         }
     },
+    location: {
+        type: String,
+        default: "",
+    },
     about: {
         type: String,
-        default: "We will make our society green together",
+        default: "",
     },
     price:{
         type: Number,

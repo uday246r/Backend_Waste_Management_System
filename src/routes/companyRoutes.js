@@ -11,7 +11,7 @@ const jwt = require("jsonwebtoken");
      validateSignUpDataCompany(req);
      //Encrypt the password
  
-     const { companyName, emailId, password, wasteType, photoUrl, about, price} = req.body;
+     const { companyName, emailId, password, wasteType, photoUrl, location, about, price} = req.body;
      const passwordHash = await bcrypt.hash(password, 10);
      console.log(passwordHash);
  // Creating a new instance of the User model
@@ -21,6 +21,7 @@ const jwt = require("jsonwebtoken");
          password: passwordHash,
          wasteType,
          photoUrl,
+         location,
          about,
          price
      });

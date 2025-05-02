@@ -16,7 +16,7 @@ const userAuth = async (req, res, next) => {
     const user = await User.findById(_id);
     
     if(!user) {
-        console.log("TREU YSER NOT FOUND");
+        console.log("USER NOT FOUND");
         throw new Error("User not found");
     }
     req.user = user;

@@ -7,7 +7,7 @@ const cors = require("cors");
 // Middlewares
 app.use(
    cors({
-      origin: "http://localhost:5174", // frontend URL
+      origin: "http://localhost:5173", // frontend URL
       credentials: true,
    })
 );
@@ -36,7 +36,7 @@ app.use("/user", userRouter);
 app.use("/company",companyRouter);
 app.use("/videos", videoRouter); // ✅ NEW
 
-app.use("/pickr", pickupRequestRouter);
+app.use("/pickup", pickupRequestRouter);
 
 // Connect to DB and start server
 connectDB()

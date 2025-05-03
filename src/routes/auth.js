@@ -17,7 +17,7 @@ const jwt = require("jsonwebtoken");
  
      const { firstName, lastName, emailId, password} = req.body;
      const passwordHash = await bcrypt.hash(password, 10);
-     console.log(passwordHash);
+    //  console.log(passwordHash);
  // Creating a new instance of the User model
      const user = new User({
          firstName,
@@ -54,7 +54,7 @@ const jwt = require("jsonwebtoken");
             // create a JWT Token
 
             const token = await user.getJWT();
-            console.log(token);
+            // console.log(token);
 
             //Add the token to cookie and send the response back to the user
             res.cookie("token",token, {

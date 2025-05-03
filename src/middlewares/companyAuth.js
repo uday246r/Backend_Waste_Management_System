@@ -14,6 +14,7 @@ const companyAuth = async (req, res, next) => {
     const { _id } = decodedObj;
 
     const company = await Company.findById(_id);
+    console.log(decodedObj, _id, company);
     if(!company) {
         throw new Error("Company not found");
     }

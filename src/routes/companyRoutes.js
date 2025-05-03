@@ -13,7 +13,7 @@ const jwt = require("jsonwebtoken");
  
      const { companyName, emailId, password, wasteType, photoUrl, location, about, price} = req.body;
      const passwordHash = await bcrypt.hash(password, 10);
-     console.log(passwordHash);
+    //  console.log(passwordHash);
  // Creating a new instance of the User model
      const company = new Company({
          companyName,

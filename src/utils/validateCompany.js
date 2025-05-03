@@ -15,9 +15,6 @@ const validateSignUpDataCompany = (req) => {
     if (!wasteType) {
         throw new Error("Waste type is required.");
     }
-    if (!location) {
-        throw new Error("Location is required.");
-    }
     if (!photoUrl) {
         throw new Error("Photo URL is required.");
     }
@@ -32,7 +29,6 @@ const validateSignUpDataCompany = (req) => {
 };
 
 const validateEditProfileDataCompany = (req) => {
-    console.log("Request Body:", req.body); 
     const allowedEditFields = [
          "companyName",
          "photoUrl", 

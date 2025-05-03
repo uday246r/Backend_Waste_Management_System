@@ -72,6 +72,7 @@ userRouter.get("/feed", userAuth, async (req, res) => {
         }).select("toCompanyId");
 
         const hideCompanyIds = new Set(pickupRequests.map(req => req.toCompanyId.toString()));
+        console.log("Hide Company IDs:", Array.from(hideCompanyIds));
 
         // Get companies that the user hasn't requested pickups from
         const companies = await Company.find({
@@ -81,11 +82,15 @@ userRouter.get("/feed", userAuth, async (req, res) => {
         .skip(skip)
         .limit(limit);
 
+        console.log("Fetched Companies:", companies);
+
         res.json({ data: companies });
     } catch (err) {
+        console.error("Error fetching feed data:", err);
         res.status(400).json({ message: err.message });
     }
 });
+
 
 
 module.exports = userRouter;

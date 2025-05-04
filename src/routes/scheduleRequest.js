@@ -13,14 +13,12 @@ pickupRequestRouter.post("/send/:status/:toCompanyId", userAuth, async (req, res
         const toCompanyId = req.params.toCompanyId; 
         const status = req.params.status;
 
-        const allowedStatus = ["ignored", "interested","pending"];
-        console.log(status);
+        const allowedStatus = ["ignored", "interested", "pending", "accepted", "rejected"];
         if (!allowedStatus.includes(status)) {
             return res.status(400).json({ message: "Invalid status type: " + status });
         }
 
         const toCompany = await Company.findById(toCompanyId);
-        console.log(toCompany, toCompanyId);
         if (!toCompany) {
             return res.status(404).json({ message: "Company not found" });
         }
@@ -42,14 +40,17 @@ pickupRequestRouter.post("/send/:status/:toCompanyId", userAuth, async (req, res
     }
 });
 
-// ✅ Fetch pickup requests for the user (Pending and Interested)
+// ✅ Fetch pickup requests for the user
 pickupRequestRouter.get("/user/requests/pickup", userAuth, async (req, res) => {
     try {
         const fromUserId = req.user._id;
 
-        const pickupRequests = await PickupRequest.find({ fromUserId, status: { $in: ["interested", "ignored"] } })
+        const pickupRequests = await PickupRequest.find({
+            fromUserId,
+            status: { $in: ["interested", "ignored", "pending", "accepted", "rejected"] },
+        })
             .populate("fromUserId", "firstName lastName photoUrl age gender about")
-            .populate("toCompanyId", "companyName");
+            .populate("toCompanyId", "companyName photoUrl about");
 
         res.json({ data: pickupRequests });
     } catch (err) {
@@ -57,12 +58,15 @@ pickupRequestRouter.get("/user/requests/pickup", userAuth, async (req, res) => {
     }
 });
 
-// ✅ Fetch pickup requests for the company (Accepted or Rejected)
+// ✅ Fetch pickup requests for the company
 pickupRequestRouter.get("/company/requests/pickup", companyAuth, async (req, res) => {
     try {
         const toCompanyId = req.company._id;
 
-        const pickupRequests = await PickupRequest.find({ toCompanyId, status: { $in: ["accepted", "rejected", "pending"] } })
+        const pickupRequests = await PickupRequest.find({
+            toCompanyId,
+            status: { $in: ["ignored", "interested", "pending", "accepted", "rejected"] },
+        })
             .populate("fromUserId", "firstName lastName photoUrl age gender about")
             .populate("toCompanyId", "companyName");
 
@@ -76,15 +80,15 @@ pickupRequestRouter.get("/company/requests/pickup", companyAuth, async (req, res
 pickupRequestRouter.post("/review/:status/:requestId", companyAuth, async (req, res) => {
     try {
         const { status, requestId } = req.params;
-        const allowedStatus = ["accepted", "rejected"];
+        const allowedStatus = ["accepted", "rejected", "interested", "ignored"];
         if (!allowedStatus.includes(status)) {
             return res.status(400).json({ message: "Invalid status type: " + status });
         }
 
         const pickupRequest = await PickupRequest.findOne({
             _id: requestId,
-            toCompanyId: req.user._id,
-            status: "interested",
+            toCompanyId: req.company._id,
+            status: { $in: ["interested", "pending"] } // allow both states to be reviewed
         });
 
         if (!pickupRequest) {
@@ -100,7 +104,7 @@ pickupRequestRouter.post("/review/:status/:requestId", companyAuth, async (req, 
     }
 });
 
-// ✅ Fetch all pickup requests (for both users and companies)
+// ✅ Fetch all pickup requests (admin/debug purpose)
 pickupRequestRouter.get("/all/requests", async (req, res) => {
     try {
         const allRequests = await PickupRequest.find()
@@ -113,11 +117,11 @@ pickupRequestRouter.get("/all/requests", async (req, res) => {
     }
 });
 
-// ✅ Update pickup request status (from user side)
+// ✅ Update pickup request status (user side)
 pickupRequestRouter.post("/update-status/:status/:requestId", userAuth, async (req, res) => {
     try {
         const { status, requestId } = req.params;
-        const allowedStatus = ["interested", "ignored"];
+        const allowedStatus = ["ignored", "interested", "pending", "accepted", "rejected"];
         if (!allowedStatus.includes(status)) {
             return res.status(400).json({ message: "Invalid status type: " + status });
         }

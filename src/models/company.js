@@ -31,6 +31,15 @@ const companySchema = new mongoose.Schema({
             }
         }
     },
+    pickupTimeFrom: {
+        type: String,
+        required: true
+      },
+      pickupTimeTo: {
+        type: String,
+        required: true
+      },
+      
     wasteType: {
         type: String,
         enum: {

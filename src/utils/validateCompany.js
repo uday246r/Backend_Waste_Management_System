@@ -1,7 +1,7 @@
 const validatorC = require("validator");
 
 const validateSignUpDataCompany = (req) => {
-    const { companyName, emailId, password, wasteType, location, photoUrl, about, price } = req.body;
+    const { companyName, emailId, password, wasteType, pickupTime, photoUrl, about, price } = req.body;
     
     if (!companyName) {
         throw new Error("Company name is required.");
@@ -17,6 +17,9 @@ const validateSignUpDataCompany = (req) => {
     }
     if (!photoUrl) {
         throw new Error("Photo URL is required.");
+    }
+    if (!pickupTime) {
+        throw new Error("Pickup Time is required.");
     }
     if (!about) {
         throw new Error("About section is required.");
@@ -34,6 +37,7 @@ const validateEditProfileDataCompany = (req) => {
          "photoUrl", 
          "wasteType",
          "emailId",
+         "pickupTime",
          "location",
          "about", 
          "price",

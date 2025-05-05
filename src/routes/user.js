@@ -78,7 +78,7 @@ userRouter.get("/feed", userAuth, async (req, res) => {
         const companies = await Company.find({
             _id: { $nin: Array.from(hideCompanyIds) }
         })
-        .select("companyName photoUrl wasteType about price")
+        .select("companyName photoUrl wasteType pickupTimeFrom pickupTimeTo location about price")
         .skip(skip)
         .limit(limit);
 

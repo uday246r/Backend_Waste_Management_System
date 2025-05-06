@@ -13,7 +13,7 @@ const pickupRequestSchema = new mongoose.Schema({
     },
     status: {
         type: String,
-        enum: ['pending', 'interested', 'ignored', 'accepted', 'rejected'],
+        enum: ['pending', 'interested', 'ignored', 'accepted', 'rejected', 'picked-up'],
         default: 'pending',
     },
     // Additional fields related to pickup requests (pickup details, timestamps, etc.)

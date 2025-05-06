@@ -47,10 +47,10 @@ pickupRequestRouter.get("/user/requests/pickup", userAuth, async (req, res) => {
 
         const pickupRequests = await PickupRequest.find({
             fromUserId,
-            status: { $in: ["interested", "ignored", "pending", "accepted", "rejected"] },
+            status: { $in: ["interested", "ignored", "pending", "accepted", "rejected", "picked-up"] },
         })
-            .populate("fromUserId", "firstName lastName photoUrl age gender about")
-            .populate("toCompanyId", "companyName photoUrl about");
+            .populate("fromUserId", "firstName lastName photoUrl age gender about emailId")
+            .populate("toCompanyId", "companyName photoUrl about emailId");
 
         res.json({ data: pickupRequests });
     } catch (err) {
@@ -65,10 +65,10 @@ pickupRequestRouter.get("/company/requests/pickup", companyAuth, async (req, res
 
         const pickupRequests = await PickupRequest.find({
             toCompanyId,
-            status: { $in: ["ignored", "interested", "pending", "accepted", "rejected"] },
+            status: { $in: ["ignored", "interested", "pending", "accepted", "rejected", "picked-up"] },
         })
-            .populate("fromUserId", "firstName lastName photoUrl age gender about")
-            .populate("toCompanyId", "companyName");
+            .populate("fromUserId", "firstName lastName photoUrl age gender about emailId")
+            .populate("toCompanyId", "companyName photoUrl about emailId");
 
         res.json({ data: pickupRequests });
     } catch (err) {
@@ -104,12 +104,38 @@ pickupRequestRouter.post("/review/:status/:requestId", companyAuth, async (req, 
     }
 });
 
+// ✅ Mark pickup request as "picked-up" (user side)
+pickupRequestRouter.post("/mark-picked-up/:requestId", userAuth, async (req, res) => {
+    try {
+        const { requestId } = req.params;
+
+        const pickupRequest = await PickupRequest.findOne({
+            _id: requestId,
+            fromUserId: req.user._id,
+            status: "accepted" // Only accepted requests can be marked as picked up
+        });
+
+        if (!pickupRequest) {
+            return res.status(404).json({ 
+                message: "Pickup request not found or not eligible to be marked as picked up." 
+            });
+        }
+
+        pickupRequest.status = "picked-up";
+        const data = await pickupRequest.save();
+
+        res.json({ message: "Pickup request marked as picked up", data });
+    } catch (err) {
+        res.status(400).send("ERROR: " + err.message);
+    }
+});
+
 // ✅ Fetch all pickup requests (admin/debug purpose)
 pickupRequestRouter.get("/all/requests", async (req, res) => {
     try {
         const allRequests = await PickupRequest.find()
-            .populate("fromUserId", "firstName lastName photoUrl age gender about")
-            .populate("toCompanyId", "companyName");
+            .populate("fromUserId", "firstName lastName photoUrl age gender about emailId")
+            .populate("toCompanyId", "companyName photoUrl about emailId");
 
         res.json({ data: allRequests });
     } catch (err) {

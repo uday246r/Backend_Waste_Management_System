@@ -8,7 +8,7 @@ const User = require('../models/user');
 const Company = require('../models/company');
 const PickupRequest = require('../models/schedulePickup');
 
-const USER_SAFE_DATA = "firstName lastName photoUrl age gender about skills";
+const USER_SAFE_DATA = "firstName lastName photoUrl age gender emailId about skills";
 
 // Get received connection requests
 userRouter.get("/requests/received", userAuth, async(req, res) => {

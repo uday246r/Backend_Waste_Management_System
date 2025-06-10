@@ -3,6 +3,7 @@ const connectDB = require("./config/database");
 const app = express();
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
+require("dotenv").config();
 
 // Middlewares
 app.use(
@@ -42,8 +43,8 @@ app.use("/pickup", pickupRequestRouter);
 connectDB()
  .then(() => {
     console.log("Database connection established....");
-    app.listen(4000, () => {
-        console.log("Server successfully run on port no. 4000....");
+    app.listen(process.env.PORT, () => {
+        console.log("Server successfully run....");
     }); 
  })
  .catch((err) => {

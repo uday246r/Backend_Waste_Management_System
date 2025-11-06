@@ -21,7 +21,7 @@ const profileRouter = require("./routes/profile");
 const companyProfileRouter = require("./routes/companyProfile");
 const requestRouter = require("./routes/request");
 const userRouter = require("./routes/user");
-// const companyRouter = require("./routes/company");
+const companyRouter = require("./routes/company");
 const videoRouter = require("./routes/videoRoutes"); // ✅ NEW
 const pickupRequestRouter = require("./routes/scheduleRequest")
 
@@ -33,7 +33,7 @@ app.use("/profile", profileRouter);
 app.use("/companyProfile", companyProfileRouter);
 app.use("/request", requestRouter);
 app.use("/user", userRouter);
-// app.use("/company",companyRouter);
+app.use("/company",companyRouter);
 app.use("/videos", videoRouter); // ✅ NEW
 
 app.use("/pickup", pickupRequestRouter);

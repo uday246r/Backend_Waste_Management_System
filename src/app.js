@@ -3,7 +3,8 @@ const connectDB = require("./config/database");
 const app = express();
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
-
+const http = require("http");
+const { initSocket } = require("./utils/socket");
 // Middlewares
 app.use(
    cors({
@@ -23,7 +24,9 @@ const requestRouter = require("./routes/request");
 const userRouter = require("./routes/user");
 const companyRouter = require("./routes/company");
 const videoRouter = require("./routes/videoRoutes"); // ✅ NEW
-const pickupRequestRouter = require("./routes/scheduleRequest")
+const pickupRequestRouter = require("./routes/scheduleRequest");
+const messageRouter = require("./routes/message");
+const initalizedSocket = require('./utils/socket');
 
 
 // Use Routes
@@ -34,15 +37,18 @@ app.use("/companyProfile", companyProfileRouter);
 app.use("/request", requestRouter);
 app.use("/user", userRouter);
 app.use("/company",companyRouter);
-app.use("/videos", videoRouter); // ✅ NEW
-
+app.use("/videos", videoRouter); 
 app.use("/pickup", pickupRequestRouter);
+app.use("/messages", messageRouter);
+
+const server = http.createServer(app);
+initalizedSocket(server);
 
 // Connect to DB and start server
 connectDB()
  .then(() => {
     console.log("Database connection established....");
-    app.listen(4000, () => {
+    server.listen(4000, () => {
         console.log("Server successfully run on port no. 4000....");
     }); 
  })

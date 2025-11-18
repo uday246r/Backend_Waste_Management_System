@@ -7,6 +7,7 @@ const ConnectionRequest = require('../models/connectionRequest');
 const User = require('../models/user');
 const Company = require('../models/company');
 const PickupRequest = require('../models/schedulePickup');
+const Payment = require('../models/payment');
 
 const USER_SAFE_DATA = "firstName lastName photoUrl age gender emailId about skills";
 
@@ -69,12 +70,39 @@ userRouter.get("/feed", userAuth, async (req, res) => {
         // Find all pickup requests made by this user
         const pickupRequests = await PickupRequest.find({
             fromUserId: loggedInUser._id
-        }).select("toCompanyId");
+        }).select("_id toCompanyId status");
 
-        const hideCompanyIds = new Set(pickupRequests.map(req => req.toCompanyId.toString()));
-        // console.log("Hide Company IDs:", Array.from(hideCompanyIds));
+        const pickupIds = pickupRequests.map(req => req._id);
 
-        // Get companies that the user hasn't requested pickups from
+        // Find payments associated with these pickup requests
+        const payments = await Payment.find({
+            pickupRequestId: { $in: pickupIds }
+        }).select("pickupRequestId status");
+
+        const paymentStatusByPickup = new Map();
+        payments.forEach(p => {
+            const key = p.pickupRequestId.toString();
+            if (!paymentStatusByPickup.has(key)) {
+                paymentStatusByPickup.set(key, p.status);
+            }
+        });
+
+        // Hide companies where there is at least one pickup
+        // that is not fully completed and paid.
+        const hideCompanyIds = new Set();
+        pickupRequests.forEach(req => {
+            const pickupId = req._id.toString();
+            const paymentStatus = paymentStatusByPickup.get(pickupId);
+
+            const isPaid = paymentStatus === "completed";
+            const isPickupDone = req.status === "picked-up" && isPaid;
+
+            if (!isPickupDone) {
+                hideCompanyIds.add(req.toCompanyId.toString());
+            }
+        });
+
+        // Get companies that the user doesn't currently have an active/unpaid pickup with
         const companies = await Company.find({
             _id: { $nin: Array.from(hideCompanyIds) }
         })

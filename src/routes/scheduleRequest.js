@@ -5,6 +5,7 @@ const { userAuth } = require("../middlewares/auth");
 const { companyAuth } = require("../middlewares/companyAuth");
 const PickupRequest = require("../models/schedulePickup");
 const Company = require("../models/company");
+const Payment = require("../models/payment");
 
 // ✅ Send pickup request from user to company
 pickupRequestRouter.post("/send/:status/:toCompanyId", userAuth, async (req, res) => {
@@ -23,12 +24,28 @@ pickupRequestRouter.post("/send/:status/:toCompanyId", userAuth, async (req, res
             return res.status(404).json({ message: "Company not found" });
         }
 
-        const existingRequest = await PickupRequest.findOne({ fromUserId, toCompanyId });
+        const existingRequest = await PickupRequest.findOne({ fromUserId, toCompanyId }).sort({ createdAt: -1 });
         if (existingRequest) {
-            return res.status(409).json({
-                message: "Request already sent",
-                status: existingRequest.status,
-            });
+            let canSendAnother = false;
+
+            if (["rejected", "ignored"].includes(existingRequest.status)) {
+                canSendAnother = true;
+            } else if (existingRequest.status === "picked-up") {
+                const completedPayment = await Payment.findOne({
+                    pickupRequestId: existingRequest._id,
+                    status: "completed",
+                });
+                if (completedPayment) {
+                    canSendAnother = true;
+                }
+            }
+
+            if (!canSendAnother) {
+                return res.status(409).json({
+                    message: "Request already sent",
+                    status: existingRequest.status,
+                });
+            }
         }
 
         const newRequest = new PickupRequest({ fromUserId, toCompanyId, status });
@@ -108,6 +125,7 @@ pickupRequestRouter.post("/review/:status/:requestId", companyAuth, async (req, 
 pickupRequestRouter.post("/mark-picked-up/:requestId", userAuth, async (req, res) => {
     try {
         const { requestId } = req.params;
+        const { wasteAmount, wasteWeight } = req.body;
 
         const pickupRequest = await PickupRequest.findOne({
             _id: requestId,
@@ -122,6 +140,8 @@ pickupRequestRouter.post("/mark-picked-up/:requestId", userAuth, async (req, res
         }
 
         pickupRequest.status = "picked-up";
+        if (wasteAmount) pickupRequest.wasteAmount = wasteAmount;
+        if (wasteWeight) pickupRequest.wasteWeight = wasteWeight;
         const data = await pickupRequest.save();
 
         res.json({ message: "Pickup request marked as picked up", data });

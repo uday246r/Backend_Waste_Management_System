@@ -26,6 +26,7 @@ const companyRouter = require("./routes/company");
 const videoRouter = require("./routes/videoRoutes"); // ✅ NEW
 const pickupRequestRouter = require("./routes/scheduleRequest");
 const messageRouter = require("./routes/message");
+const paymentRouter = require("./routes/payment");
 const initalizedSocket = require('./utils/socket');
 
 
@@ -40,6 +41,7 @@ app.use("/company",companyRouter);
 app.use("/videos", videoRouter); 
 app.use("/pickup", pickupRequestRouter);
 app.use("/messages", messageRouter);
+app.use("/payment", paymentRouter);
 
 const server = http.createServer(app);
 initalizedSocket(server);

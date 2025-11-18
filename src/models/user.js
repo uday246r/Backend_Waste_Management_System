@@ -66,6 +66,12 @@ const userSchema = new mongoose.Schema({
     skills:{
         type: [String],
     },
+    accountNumber: {
+        type: String,
+    },
+    upiId: {
+        type: String,
+    },
 },{
     timestamps: true,
 });

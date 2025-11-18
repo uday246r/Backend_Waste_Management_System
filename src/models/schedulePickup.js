@@ -16,7 +16,14 @@ const pickupRequestSchema = new mongoose.Schema({
         enum: ['pending', 'interested', 'ignored', 'accepted', 'rejected', 'picked-up'],
         default: 'pending',
     },
-    // Additional fields related to pickup requests (pickup details, timestamps, etc.)
+    wasteAmount: {
+        type: Number,
+        default: 0,
+    },
+    wasteWeight: {
+        type: Number,
+        default: 0,
+    },
 }, { timestamps: true });
 
 const PickupRequest = mongoose.model('PickupRequest', pickupRequestSchema);

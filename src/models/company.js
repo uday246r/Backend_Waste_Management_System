@@ -67,6 +67,22 @@ const companySchema = new mongoose.Schema({
     price:{
         type: Number,
     },
+    // Payment account details for payouts
+    paymentAccountNumber: {
+        type: String,
+    },
+    paymentUpiId: {
+        type: String,
+    },
+    paymentBankName: {
+        type: String,
+    },
+    paymentIfscCode: {
+        type: String,
+    },
+    razorpayAccountId: {
+        type: String, // Razorpay account ID if using Razorpay Payouts
+    },
 },{
     timestamps: true,
 });

@@ -6,20 +6,61 @@ const Video = require('../models/Video');
 
 // const { companyFeedController } = require('../controllers/companyController');
 
-companyRouter.get('/feed', companyAuth, async(req,res)=>{
-    try{
-        const totalPickupRequests = (await PickupRequest.find()).length;
-        const pendingPickupRequests = (await PickupRequest.find({ status: 'pending' })).length;
-        const acceptedPickupRequests = (await PickupRequest.find({ status: 'accepted' })).length;
-        const rejectedPickupRequests = (await PickupRequest.find({ status: 'rejected' })).length;
-        const pickedUpPickupRequests = (await PickupRequest.find({ status: 'picked-up' })).length;
-        const diyVideos = (await Video.find({ userId: req.company._id })).length;
-        res.status(200).json({totalPickupRequests,pendingPickupRequests,acceptedPickupRequests,rejectedPickupRequests,pickedUpPickupRequests,diyVideos});
-    }
-    catch(err){
+companyRouter.get('/feed', companyAuth, async (req, res) => {
+    try {
+        const companyId = req.company._id;
+
+        const statusAggregation = await PickupRequest.aggregate([
+            { $match: { toCompanyId: companyId } },
+            { $group: { _id: "$status", count: { $sum: 1 } } }
+        ]);
+
+        const statusTemplate = {
+            totalPickupRequests: 0,
+            pendingPickupRequests: 0,
+            acceptedPickupRequests: 0,
+            rejectedPickupRequests: 0,
+            pickedUpPickupRequests: 0,
+            interestedPickupRequests: 0,
+            ignoredPickupRequests: 0,
+        };
+
+        statusAggregation.forEach(({ _id, count }) => {
+            statusTemplate.totalPickupRequests += count;
+            if (_id === 'pending') statusTemplate.pendingPickupRequests = count;
+            if (_id === 'accepted') statusTemplate.acceptedPickupRequests = count;
+            if (_id === 'rejected') statusTemplate.rejectedPickupRequests = count;
+            if (_id === 'picked-up') statusTemplate.pickedUpPickupRequests = count;
+            if (_id === 'interested') statusTemplate.interestedPickupRequests = count;
+            if (_id === 'ignored') statusTemplate.ignoredPickupRequests = count;
+        });
+
+        const diyVideos = await Video.countDocuments({ userId: companyId });
+        const recentRequests = await PickupRequest.find({ toCompanyId: companyId })
+            .sort({ createdAt: -1 })
+            .limit(250)
+            .select("_id status createdAt updatedAt");
+
+        const analyticsPayload = {
+            ...statusTemplate,
+            diyVideos,
+        };
+
+        res.status(200).json({
+            ...analyticsPayload,
+            company: {
+                _id: companyId,
+                companyName: req.company.companyName,
+                wasteType: req.company.wasteType,
+                location: req.company.location,
+            },
+            analytics: analyticsPayload,
+            recentRequests,
+        });
+    } catch (err) {
         res.status(500).json({ message: 'Server Error', error: err.message });
     }
-}); 
+});
 
 module.exports = companyRouter;
 

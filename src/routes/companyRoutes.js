@@ -4,6 +4,15 @@ const { validateSignUpDataCompany } = require("../utils/validateCompany");
 const Company = require("../models/company");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const { NODE_ENV } = require("../config/env");
+
+const isProduction = NODE_ENV === "production";
+const baseCookieOptions = {
+    httpOnly: true,
+    sameSite: isProduction ? "none" : "lax",
+    secure: isProduction,
+    path: "/",
+};
 
 authCRouter.post("/signup", async (req, res) => {
     try {
@@ -54,6 +63,7 @@ authCRouter.post("/signup", async (req, res) => {
         const token = await savedCompany.getJWT();
 
         res.cookie("token", token, {
+            ...baseCookieOptions,
             expires: new Date(Date.now() + 8 * 3600000),
         });
 
@@ -76,6 +86,7 @@ authCRouter.post("/login", async (req, res) => {
         const token = await company.getJWT();
 
         res.cookie("token", token, {
+            ...baseCookieOptions,
             expires: new Date(Date.now() + 8 * 36000000),
         });
 
@@ -87,6 +98,7 @@ authCRouter.post("/login", async (req, res) => {
 
 authCRouter.post("/logout", async (req, res) => {
     res.cookie("token", null, {
+        ...baseCookieOptions,
         expires: new Date(Date.now()),
     });
     res.send("Logout Successful!!");

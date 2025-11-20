@@ -4,6 +4,15 @@ const { validateSignUpData } = require("../utils/validation");
 const User = require("../models/user");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const { NODE_ENV } = require("../config/env");
+
+const isProduction = NODE_ENV === "production";
+const baseCookieOptions = {
+    httpOnly: true,
+    sameSite: isProduction ? "none" : "lax",
+    secure: isProduction,
+    path: "/",
+};
 
  
 
@@ -29,9 +38,10 @@ const jwt = require("jsonwebtoken");
      const savedUser = await user.save();
      const token = await savedUser.getJWT();
 
-     res.cookie("token", token, {
-        expires: new Date(Date.now() + 8 * 3600000),
-     });
+    res.cookie("token", token, {
+       ...baseCookieOptions,
+       expires: new Date(Date.now() + 8 * 3600000),
+    });
      
      res.json({ message: "User added sucessfully", data: savedUser });
      } catch(err) {
@@ -58,6 +68,7 @@ const jwt = require("jsonwebtoken");
 
             //Add the token to cookie and send the response back to the user
             res.cookie("token",token, {
+                ...baseCookieOptions,
                 expires: new Date(Date.now() + 8 * 36000000),
             });
             res.send(user);
@@ -72,6 +83,7 @@ const jwt = require("jsonwebtoken");
 
 authRouter.post("/logout", async (req,res) => {
     res.cookie("token",null,{
+        ...baseCookieOptions,
         expires: new Date(Date.now()),
     });
     res.send("Logout Successful!!");

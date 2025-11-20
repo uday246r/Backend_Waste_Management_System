@@ -6,6 +6,7 @@ const videoSchema = new mongoose.Schema({
   youtubeUrl: { type: String, required: true },
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   userName: { type: String, required: true },
+  likes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   createdAt: { type: Date, default: Date.now },
 });
 

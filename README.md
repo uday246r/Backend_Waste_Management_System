@@ -2,7 +2,7 @@
 
 ## Environment Setup
 
-1. Navigate to `env/` and duplicate `example.env` as `.env`.
+1. Copy either `env/example.env` or `env.example` to `env/.env` (or drop it in the project root as `.env`).
 2. Fill in each key with the values for your deployment.
 3. Never commit the `.env` file—it's already ignored via `.gitignore`.
 

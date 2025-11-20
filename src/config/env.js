@@ -1,9 +1,18 @@
+const fs = require("fs");
 const path = require("path");
 const dotenv = require("dotenv");
 
-dotenv.config({
-  path: path.resolve(__dirname, "../../env/.env"),
-});
+const possibleEnvFiles = [
+  // path.resolve(__dirname, "../../env/.env"),
+  path.resolve(__dirname, "../../.env"),
+];
+
+const envFile = possibleEnvFiles.find((filePath) => fs.existsSync(filePath));
+if (envFile) {
+  dotenv.config({ path: envFile });
+} else {
+  dotenv.config();
+}
 
 const env = {
   NODE_ENV: process.env.NODE_ENV || "development",

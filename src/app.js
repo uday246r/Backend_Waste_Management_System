@@ -1,14 +1,18 @@
 const express = require('express');
-const connectDB = require("./config/database");
-const app = express();
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
 const http = require("http");
 const { initSocket } = require("./utils/socket");
+const connectDB = require("./config/database");
+const {
+   CLIENT_URL,
+   PORT,
+} = require("./config/env");
+const app = express();
 // Middlewares
 app.use(
    cors({
-      origin: "http://localhost:5173", // frontend URL
+      origin: CLIENT_URL, // frontend URL
       credentials: true,
    })
 );
@@ -50,8 +54,8 @@ initalizedSocket(server);
 connectDB()
  .then(() => {
     console.log("Database connection established....");
-    server.listen(4000, () => {
-        console.log("Server successfully run on port no. 4000....");
+    server.listen(PORT, () => {
+        console.log(`Server successfully running on port ${PORT}....`);
     }); 
  })
  .catch((err) => {

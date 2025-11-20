@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const validatorC = require('validator');
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
+const { JWT_SECRET } = require("../config/env");
 
 const companySchema = new mongoose.Schema({
     companyName: {
@@ -90,7 +91,7 @@ const companySchema = new mongoose.Schema({
 companySchema.methods.getJWT = async function () {
     const company = this;
 
-    const token = await  jwt.sign({ _id: company._id}, "DEV@Tinder$790",{
+    const token = await  jwt.sign({ _id: company._id}, JWT_SECRET,{
         expiresIn: "7d",
     });
     return token;

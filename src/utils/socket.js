@@ -1,10 +1,11 @@
 const socket = require("socket.io");
 const Message = require("../models/message");
+const { SOCKET_ORIGIN } = require("../config/env");
 
 const initalizedSocket = (server) =>{
     const io = socket(server,{
         cors:{
-            origin: "http://localhost:5173",
+            origin: SOCKET_ORIGIN,
         },
     });
 

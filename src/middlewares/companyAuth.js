@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken");
 const Company = require("../models/company");
+const { JWT_SECRET } = require("../config/env");
 
 const companyAuth = async (req, res, next) => {
     try{
@@ -9,7 +10,7 @@ const companyAuth = async (req, res, next) => {
         return res.status(401).send("Please Login!");
     }
 
-    const decodedObj = await jwt.verify(token, "DEV@Tinder$790");
+    const decodedObj = await jwt.verify(token, JWT_SECRET);
 
     const { _id } = decodedObj;
 

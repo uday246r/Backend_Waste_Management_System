@@ -8,16 +8,34 @@ const { companyAuth } = require("../middlewares/companyAuth");
 const Payment = require("../models/payment");
 const PickupRequest = require("../models/schedulePickup");
 const User = require("../models/user");
+const {
+    RAZORPAY_KEY_ID,
+    RAZORPAY_KEY_SECRET,
+    HAS_RAZORPAY_CREDENTIALS
+} = require("../config/env");
 
 // Initialize Razorpay
-const razorpay = new Razorpay({
-    key_id: process.env.RAZORPAY_KEY_ID || "rzp_test_1DP5mmOlF5G5ag",
-    key_secret: process.env.RAZORPAY_KEY_SECRET || "your_key_secret",
-});
+const razorpay = HAS_RAZORPAY_CREDENTIALS
+    ? new Razorpay({
+        key_id: RAZORPAY_KEY_ID,
+        key_secret: RAZORPAY_KEY_SECRET,
+    })
+    : null;
+
+const ensureRazorpayConfigured = () => {
+    if (!HAS_RAZORPAY_CREDENTIALS || !razorpay) {
+        const error = new Error("Razorpay credentials are not configured. Please set RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET.");
+        error.statusCode = 503;
+        throw error;
+    }
+};
 
 // Get Razorpay key for frontend
 paymentRouter.get("/razorpay-key", (req, res) => {
-    res.json({ keyId: process.env.RAZORPAY_KEY_ID || "rzp_test_1DP5mmOlF5G5ag" });
+    if (!RAZORPAY_KEY_ID) {
+        return res.status(503).json({ message: "Razorpay key is not configured" });
+    }
+    res.json({ keyId: RAZORPAY_KEY_ID });
 });
 
 // Update user payment details (account number or UPI ID)
@@ -165,6 +183,7 @@ paymentRouter.post("/process-payout/:paymentId", companyAuth, async (req, res) =
         const shouldAttemptRazorpay = (method === "razorpay" || (method === "auto" && canUseRazorpay)) && payment.status === "pending";
         if (shouldAttemptRazorpay) {
             try {
+                ensureRazorpayConfigured();
                 // Create payout using Razorpay Payouts API
                 const payoutData = {
                     account_number: company.razorpayAccountId,
@@ -214,6 +233,9 @@ paymentRouter.post("/process-payout/:paymentId", companyAuth, async (req, res) =
                 });
             } catch (payoutErr) {
                 console.error("Razorpay Payout error:", payoutErr);
+                if (payoutErr.statusCode === 503) {
+                    return res.status(503).json({ message: payoutErr.message });
+                }
                 if (method === "razorpay") {
                     return res.status(502).json({
                         message: "Unable to initiate Razorpay payout. Please try manual transfer.",
@@ -265,6 +287,11 @@ paymentRouter.post("/complete-payment/:paymentId", companyAuth, async (req, res)
         if (transactionId) {
             if (transactionId.startsWith("pout_")) {
                 // Optional verification for Razorpay payout IDs (start with "pout_")
+                if (!HAS_RAZORPAY_CREDENTIALS || !razorpay) {
+                    return res.status(503).json({
+                        message: "Razorpay credentials are not configured. Cannot verify payout ID."
+                    });
+                }
                 try {
                     const payout = await razorpay.payouts.fetch(transactionId);
                     const amountMatches = payout && payout.amount === Math.round(payment.amount * 100);
@@ -319,8 +346,14 @@ paymentRouter.post("/verify-payment/:paymentId", companyAuth, async (req, res) =
             return res.status(404).json({ message: "Payment not found" });
         }
 
+        if (!RAZORPAY_KEY_SECRET) {
+            return res.status(503).json({
+                message: "Razorpay credentials are not configured. Cannot verify payment."
+            });
+        }
+
         const text = `${razorpay_order_id}|${razorpay_payment_id}`;
-        const keySecret = process.env.RAZORPAY_KEY_SECRET || "your_key_secret";
+        const keySecret = RAZORPAY_KEY_SECRET;
         const generatedSignature = crypto
             .createHmac("sha256", keySecret)
             .update(text)
